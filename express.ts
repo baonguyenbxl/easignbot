@@ -2,9 +2,11 @@ import express, {Express} from 'express';
 import http, { ClientRequest, ServerResponse, RequestListener } from 'http';
 import { callShell } from "./eos";
 
-const PORT = 8484;
-const HOST="localhost"
+const PORT = process.env.PORT || 8484;
+const HOST= process.env.HOST || "localhost"
 
+
+// routes or endpoint
 const endpoints = {
     main: "/",
     info: "/info",
