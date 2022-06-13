@@ -1,7 +1,8 @@
 import express, {Express} from 'express';
 import http, { ClientRequest, ServerResponse, RequestListener } from 'http';
 import { callShell } from "./eos";
-
+import { graphqlHTTP } from 'express-graphql';
+import { buildSchema } from 'graphql';
 const PORT = process.env.PORT || 8484;
 const HOST= process.env.HOST || "localhost"
 
@@ -10,18 +11,38 @@ const HOST= process.env.HOST || "localhost"
 const endpoints = {
     main: "/",
     info: "/info",
-    companies:"/companies"
+    companies: "/companies",
+    graphql:"/graphql"
 }
+var schema = buildSchema(`
+  type Query {
+    hello: String
+  }
+`);
 
+// The root provides a resolver function for each API endpoint
+var root = {
+  hello: () => {
+    return 'Hello world!';
+  },
+};
+
+// server Express
 export class Endpoint
 {
-    app: Express; port: Number; server: http.Server; host: String;
-    constructor ( p: Number = PORT,h:String=HOST )
+    app: Express; port: string | Number; server: http.Server; host: String;
+    constructor ( p: string | Number = PORT,h:String=HOST )
     {
         this.app = express();
         this.port = p;
         this.host = h;
         this.server = http.createServer( this.app );
+        // server GraphQL
+        this.app.use( endpoints.graphql, graphqlHTTP( {
+            schema: schema,
+            rootValue: root,
+            graphiql: true,
+        } ) );
         this.app.get( endpoints.main, ( req: express.Request, res: express.Response ): void =>
         {
             const resp = Endpoint.handleGetRequest( endpoints.main, req );

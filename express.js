@@ -16,12 +16,27 @@ exports.Endpoint = void 0;
 const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
 const eos_1 = require("./eos");
-const PORT = 8484;
-const HOST = "localhost";
+const express_graphql_1 = require("express-graphql");
+const graphql_1 = require("graphql");
+const PORT = process.env.PORT || 8484;
+const HOST = process.env.HOST || "localhost";
+// routes or endpoint
 const endpoints = {
     main: "/",
     info: "/info",
-    companies: "/companies"
+    companies: "/companies",
+    graphql: "/graphql"
+};
+var schema = (0, graphql_1.buildSchema)(`
+  type Query {
+    hello: String
+  }
+`);
+// The root provides a resolver function for each API endpoint
+var root = {
+    hello: () => {
+        return 'Hello world!';
+    },
 };
 class Endpoint {
     constructor(p = PORT, h = HOST) {
@@ -29,6 +44,11 @@ class Endpoint {
         this.port = p;
         this.host = h;
         this.server = http_1.default.createServer(this.app);
+        this.app.use(endpoints.graphql, (0, express_graphql_1.graphqlHTTP)({
+            schema: schema,
+            rootValue: root,
+            graphiql: true,
+        }));
         this.app.get(endpoints.main, (req, res) => {
             const resp = Endpoint.handleGetRequest(endpoints.main, req);
             resp.then((value) => {

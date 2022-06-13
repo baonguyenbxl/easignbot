@@ -27,6 +27,8 @@
   "dependencies": {
     "@types/mongoose": "^5.11.97",
     "atomicassets": "^1.4.2",
+    "express-graphql": "^0.12.0",
+    "graphql": "^15.8.0",
     "mongoose": "^6.3.6",
     "ts-node": "^10.8.1",
     "typescript": "^4.7.3"
