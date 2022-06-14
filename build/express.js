@@ -17,7 +17,8 @@ const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
 const eos_1 = require("./eos");
 const express_graphql_1 = require("express-graphql");
-const graphql_1 = require("graphql");
+//import { buildSchema } from 'graphql';
+const graphql_1 = require("./graphql");
 const PORT = process.env.PORT || 8484;
 const HOST = process.env.HOST || "localhost";
 // routes or endpoint
@@ -27,28 +28,34 @@ const endpoints = {
     companies: "/companies",
     graphql: "/graphql"
 };
-var schema = (0, graphql_1.buildSchema)(`
+/*
+var schema = buildSchema(`
   type Query {
     hello: String
   }
 `);
+
 // The root provides a resolver function for each API endpoint
 var root = {
-    hello: () => {
-        return 'Hello world!';
-    },
+  hello: () => {
+    return 'Hello world!';
+  },
 };
+*/
+// server Express
 class Endpoint {
     constructor(p = PORT, h = HOST) {
         this.app = (0, express_1.default)();
         this.port = p;
         this.host = h;
         this.server = http_1.default.createServer(this.app);
+        // server GraphQL
         this.app.use(endpoints.graphql, (0, express_graphql_1.graphqlHTTP)({
-            schema: schema,
-            rootValue: root,
+            schema: graphql_1.graph.schema,
+            rootValue: graphql_1.graph.root,
             graphiql: true,
         }));
+        // express routes
         this.app.get(endpoints.main, (req, res) => {
             const resp = Endpoint.handleGetRequest(endpoints.main, req);
             resp.then((value) => {
@@ -84,6 +91,7 @@ class Endpoint {
     getServer() {
         return this.server;
     }
+    // routes handlers
     static handleGetRequest(endpoint, req) {
         return __awaiter(this, void 0, void 0, function* () {
             let resp = {

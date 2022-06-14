@@ -4,7 +4,7 @@
   "description": "easign backend with a chatbot",
   "main": "index.ts",
   "scripts": {
-    "start": "node index.js"
+    "start": "node build/index.js"
   },
   "repository": {
     "type": "git",

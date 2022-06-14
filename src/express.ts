@@ -2,7 +2,8 @@ import express, {Express} from 'express';
 import http, { ClientRequest, ServerResponse, RequestListener } from 'http';
 import { callShell } from "./eos";
 import { graphqlHTTP } from 'express-graphql';
-import { buildSchema } from 'graphql';
+//import { buildSchema } from 'graphql';
+import {graph} from './graphql'
 const PORT = process.env.PORT || 8484;
 const HOST= process.env.HOST || "localhost"
 
@@ -14,6 +15,7 @@ const endpoints = {
     companies: "/companies",
     graphql:"/graphql"
 }
+/*
 var schema = buildSchema(`
   type Query {
     hello: String
@@ -26,7 +28,7 @@ var root = {
     return 'Hello world!';
   },
 };
-
+*/
 // server Express
 export class Endpoint
 {
@@ -39,10 +41,12 @@ export class Endpoint
         this.server = http.createServer( this.app );
         // server GraphQL
         this.app.use( endpoints.graphql, graphqlHTTP( {
-            schema: schema,
-            rootValue: root,
+            schema: graph.schema,
+            rootValue: graph.root,
             graphiql: true,
         } ) );
+
+        // express routes
         this.app.get( endpoints.main, ( req: express.Request, res: express.Response ): void =>
         {
             const resp = Endpoint.handleGetRequest( endpoints.main, req );
@@ -92,6 +96,7 @@ export class Endpoint
     {
         return this.server;
     }
+    // routes handlers
     static async handleGetRequest ( endpoint:String,req:express.Request)
     {
         let resp = {
